@@ -8,16 +8,11 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
-const GOOGLE_GEOCODING_API =
-  "https://maps.googleapis.com/maps/api/geocode/json";
-const GOOGLE_PLACES_API =
-  "https://maps.googleapis.com/maps/api/place/textsearch/json";
-const GOOGLE_AIR_QUALITY_API =
-  "https://airquality.googleapis.com/v1/currentConditions:lookup";
-const GOOGLE_WEATHER_CURRENT_API =
-  "https://weather.googleapis.com/v1/currentConditions:lookup";
-const GOOGLE_WEATHER_FORECAST_API =
-  "https://weather.googleapis.com/v1/forecast/days:lookup";
+const GOOGLE_GEOCODING_API = "https://maps.googleapis.com/maps/api/geocode/json";
+const GOOGLE_PLACES_API = "https://maps.googleapis.com/maps/api/place/textsearch/json";
+const GOOGLE_AIR_QUALITY_API = "https://airquality.googleapis.com/v1/currentConditions:lookup";
+const GOOGLE_WEATHER_CURRENT_API = "https://weather.googleapis.com/v1/currentConditions:lookup";
+const GOOGLE_WEATHER_FORECAST_API = "https://weather.googleapis.com/v1/forecast/days:lookup";
 
 app.use(cors());
 app.use(express.json());
@@ -962,49 +957,29 @@ app.use("/api/*", (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(
-    `🌤️  Google Weather API Server - REAL DATA ONLY - running on port ${PORT}`
-  );
+  console.log( `🌤️  Google Weather API Server - REAL DATA ONLY - running on port ${PORT}`);
   console.log(`🔗 Access the app at http://localhost:${PORT}`);
-  console.log(`\n🌟 Official Google Weather API Integration - NO MOCK DATA:`);
-  console.log(
-    ` 🌤️  Google Weather API (Current) - ${
-      GOOGLE_API_KEY ? "✅ REAL DATA" : "❌"
-    }`
-  );
-  console.log(
-    `   📅 Google Weather API (Forecast) - ${
-      GOOGLE_API_KEY ? "✅ REAL DATA" : "❌"
-    }`
-  );
-  console.log(
-    ` 📍 Google Geocoding & Places API - ${
-      GOOGLE_API_KEY ? "✅ REAL DATA" : "❌"
-    }`
-  );
-  console.log(
-    `   🌬️  Google Air Quality API - ${GOOGLE_API_KEY ? "✅ REAL DATA" : "❌"}`
-  );
-  console.log(`\n📊 Available endpoints - ALL REAL DATA:`);
-  console.log(
-    `   GET /api/weather/:city - Real-time weather via Google Weather API`
-  );
-  console.log(`GET /api/weather/coords/:lat/:lng - Weather by coordinates`);
-  console.log(`GET /api/air-quality/:city - Google Air Quality API data`);
-  console.log(
-    `GET /api/weather-chart/:city - 7-day forecast via Google Weather API`
-  );
-  console.log(`GET /api/cities/search/:query - Google Places city search`);
-  console.log(`GET /api/health - API status and integration check`);
-  console.log(`\n🔥 ZERO MOCK DATA POLICY:`);
-  console.log(`✅ Uses official Google Weather API for current conditions`);
-  console.log(`✅ Uses official Google Weather API for forecasts`);
-  console.log(`✅ Google Air Quality API provides accurate AQI data`);
-  console.log(`✅ Seamless integration with Google Maps/Places`);
-  console.log(`✅ Enterprise-grade reliability and data quality`);
-  console.log(`✅ Single API key for all Google services`);
-  console.log(`🔥 NO MOCK DATA - NO DEMO DATA - NO APPROXIMATE DATA`);
-  console.log(`🔥 ALL DATA COMES DIRECTLY FROM GOOGLE APIS`);
+  // console.log(`\n🌟 Official Google Weather API Integration - NO MOCK DATA:`);
+  // console.log( ` 🌤️  Google Weather API (Current) - ${ GOOGLE_API_KEY ? "✅ REAL DATA" : "❌"}`);
+  // console.log( `   📅 Google Weather API (Forecast) - ${GOOGLE_API_KEY ? "✅ REAL DATA" : "❌"}`);
+  // console.log(` 📍 Google Geocoding & Places API - ${  GOOGLE_API_KEY ? "✅ REAL DATA" : "❌"}`);
+  // console.log(`   🌬️  Google Air Quality API - ${GOOGLE_API_KEY ? "✅ REAL DATA" : "❌"}`);
+  // console.log(`\n📊 Available endpoints - ALL REAL DATA:`);
+  // console.log( `   GET /api/weather/:city - Real-time weather via Google Weather API`);
+  // console.log(`GET /api/weather/coords/:lat/:lng - Weather by coordinates`);
+  // console.log(`GET /api/air-quality/:city - Google Air Quality API data`);
+  // console.log( `GET /api/weather-chart/:city - 7-day forecast via Google Weather API`);
+  // console.log(`GET /api/cities/search/:query - Google Places city search`);
+  // console.log(`GET /api/health - API status and integration check`);
+  // console.log(`\n🔥 ZERO MOCK DATA POLICY:`);
+  // console.log(`✅ Uses official Google Weather API for current conditions`);
+  // console.log(`✅ Uses official Google Weather API for forecasts`);
+  // console.log(`✅ Google Air Quality API provides accurate AQI data`);
+  // console.log(`✅ Seamless integration with Google Maps/Places`);
+  // console.log(`✅ Enterprise-grade reliability and data quality`);
+  // console.log(`✅ Single API key for all Google services`);
+  // console.log(`🔥 NO MOCK DATA - NO DEMO DATA - NO APPROXIMATE DATA`);
+  // console.log(`🔥 ALL DATA COMES DIRECTLY FROM GOOGLE APIS`);
 
   if (!GOOGLE_API_KEY) {
     console.log(`\n⚠️  Make sure to set your GOOGLE_API_KEY in your .env file`);
