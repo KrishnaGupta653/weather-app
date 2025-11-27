@@ -1,8 +1,10 @@
+import { Resend } from "resend";
 const express = require("express");
 const axios = require("axios");
 const path = require("path");
 const cors = require("cors");
-const nodemailer = require("nodemailer");
+// const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 const { createClient } = require("@supabase/supabase-js");
 require("dotenv").config();
 
@@ -21,10 +23,12 @@ const GOOGLE_WEATHER_CURRENT_API =
 const GOOGLE_WEATHER_FORECAST_API =
   "https://weather.googleapis.com/v1/forecast/days:lookup";
 
-// Email Configuration
-const EMAIL_USER = process.env.EMAIL_USER;
-const EMAIL_APP_PASSWORD = process.env.EMAIL_APP_PASSWORD?.replace(/\s/g, ""); // Remove spaces
+// // Email Configuration
+// const EMAIL_USER = process.env.EMAIL_USER;
+// const EMAIL_APP_PASSWORD = process.env.EMAIL_APP_PASSWORD?.replace(/\s/g, ""); // Remove spaces
 
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const EMAIL_RECEIVER = process.env.EMAIL_RECEIVER;
 // Supabase Configuration (Optional)
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
@@ -38,37 +42,42 @@ if (ENABLE_SUPABASE && SUPABASE_URL && SUPABASE_ANON_KEY) {
 }
 
 // Email Transporter Configuration
-let emailTransporter = null;
+// let emailTransporter = null;
+// // if (EMAIL_USER && EMAIL_APP_PASSWORD) {
+// //   emailTransporter = nodemailer.createTransport({
+// //     service: "gmail",
+// //     auth: {
+// //       user: EMAIL_USER,
+// //       pass: EMAIL_APP_PASSWORD,
+// //     },
+// //   });
+
 // if (EMAIL_USER && EMAIL_APP_PASSWORD) {
 //   emailTransporter = nodemailer.createTransport({
-//     service: "gmail",
+//     host: "smtp.gmail.com",
+//     port: 587,         // ← secure Gmail port
+//     secure: false,      // ← must be true for port 465
 //     auth: {
 //       user: EMAIL_USER,
 //       pass: EMAIL_APP_PASSWORD,
 //     },
 //   });
 
-if (EMAIL_USER && EMAIL_APP_PASSWORD) {
-  emailTransporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,         // ← secure Gmail port
-    secure: false,      // ← must be true for port 465
-    auth: {
-      user: EMAIL_USER,
-      pass: EMAIL_APP_PASSWORD,
-    },
-  });
 
 
-
-  // Verify email configuration
-  emailTransporter.verify((error, success) => {
-    if (error) {
-      console.error("❌ Email configuration error:", error);
-    } else {
-      console.log("✅ Email transporter ready");
-    }
-  });
+//   // Verify email configuration
+//   emailTransporter.verify((error, success) => {
+//     if (error) {
+//       console.error("❌ Email configuration error:", error);
+//     } else {
+//       console.log("✅ Email transporter ready");
+//     }
+//   });
+// }
+let resend = null;
+if (RESEND_API_KEY) {
+  resend = new Resend(RESEND_API_KEY);
+  console.log("✅ Resend client initialized");
 }
 
 app.use(cors());
@@ -1171,19 +1180,147 @@ app.post("/api/location/track", async (req, res) => {
     }
 
     // Enhanced email notification
-    let emailResult = null;
-    if (emailTransporter) {
-      try {
-        const accuracyText = accuracy ? `±${Math.round(accuracy)}m` : "Unknown";
-        const mapUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+    // let emailResult = null;
+    // if (emailTransporter) {
+    //   try {
+    //     const accuracyText = accuracy ? `±${Math.round(accuracy)}m` : "Unknown";
+    //     const mapUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
 
-        const mailOptions = {
-          from: EMAIL_USER,
-          to: EMAIL_USER,
-          subject: `� ${
-            supabaseResult ? "✅ DB SAVED" : "❌ DB FAILED"
-          } - Location Access - ${cityName}, ${country}`,
-          html: `
+    //     const mailOptions = {
+    //       from: EMAIL_USER,
+    //       to: EMAIL_USER,
+    //       subject: `� ${
+    //         supabaseResult ? "✅ DB SAVED" : "❌ DB FAILED"
+    //       } - Location Access - ${cityName}, ${country}`,
+    //       html: `
+    //         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px;">
+    //           <div style="background: white; padding: 30px; border-radius: 8px;">
+    //             <h2 style="color: #667eea; margin-top: 0;">📍 Enhanced User Location Access</h2>
+                
+    //             <div style="background: ${
+    //               supabaseResult ? "#d4edda" : "#f8d7da"
+    //             }; padding: 15px; border-radius: 8px; margin: 15px 0;">
+    //               <h4 style="margin-top: 0; color: ${
+    //                 supabaseResult ? "#155724" : "#721c24"
+    //               };">
+    //                 Database Status: ${
+    //                   supabaseResult
+    //                     ? "✅ Successfully Saved"
+    //                     : "❌ Save Failed"
+    //                 }
+    //               </h4>
+    //               ${
+    //                 !supabaseResult
+    //                   ? '<p style="color: #721c24; margin: 5px 0;">Check server logs for detailed error information</p>'
+    //                   : ""
+    //               }
+    //             </div>
+                
+    //             <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+    //               <h3 style="color: #333; margin-top: 0;">📍 GPS Location</h3>
+    //               <p style="margin: 10px 0;"><strong>🌐 Latitude:</strong> ${latitude}</p>
+    //               <p style="margin: 10px 0;"><strong>🌐 Longitude:</strong> ${longitude}</p>
+    //               <p style="margin: 10px 0;"><strong>🎯 Accuracy:</strong> ${accuracyText}</p>
+    //               <p style="margin: 10px 0;"><strong>🏙️ City:</strong> ${cityName}</p>
+    //               <p style="margin: 10px 0;"><strong>🌍 Country:</strong> ${country}</p>
+    //               ${
+    //                 altitude
+    //                   ? `<p style="margin: 10px 0;"><strong>⛰️ Altitude:</strong> ${Math.round(
+    //                       altitude
+    //                     )}m</p>`
+    //                   : ""
+    //               }
+    //               ${
+    //                 speed
+    //                   ? `<p style="margin: 10px 0;"><strong>🚗 Speed:</strong> ${Math.round(
+    //                       speed * 3.6
+    //                     )} km/h</p>`
+    //                   : ""
+    //               }
+    //             </div>
+
+    //             <div style="background: #e8f4f8; padding: 20px; border-radius: 8px; margin: 20px 0;">
+    //               <h3 style="color: #333; margin-top: 0;">🌐 IP Information</h3>
+    //               <p style="margin: 10px 0;"><strong>🔍 IP Address:</strong> ${detectedIP}</p>
+    //               ${
+    //                 ipLocationData
+    //                   ? `
+    //                 <p style="margin: 10px 0;"><strong>🏙️ IP City:</strong> ${ipLocationData.ipCity}</p>
+    //                 <p style="margin: 10px 0;"><strong>📍 IP Region:</strong> ${ipLocationData.ipRegion}</p>
+    //                 <p style="margin: 10px 0;"><strong>🌍 IP Country:</strong> ${ipLocationData.ipCountry}</p>
+    //                 <p style="margin: 10px 0;"><strong>🏢 ISP:</strong> ${ipLocationData.ipIsp}</p>
+    //                 <p style="margin: 10px 0;"><strong>🏭 Organization:</strong> ${ipLocationData.ipOrg}</p>
+    //               `
+    //                   : '<p style="margin: 10px 0; color: #666;">IP location data not available (localhost or lookup failed)</p>'
+    //               }
+    //             </div>
+
+    //             <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0;">
+    //               <h3 style="color: #333; margin-top: 0;">💻 Session Details</h3>
+    //               <p style="margin: 10px 0;"><strong>⏰ Timestamp:</strong> ${new Date(
+    //                 locationData.timestamp
+    //               ).toLocaleString()}</p>
+    //               <p style="margin: 10px 0;"><strong>🔧 User Agent:</strong> ${
+    //                 locationData.user_agent
+    //               }</p>
+    //               <p style="margin: 10px 0;"><strong>📱 Source:</strong> ${
+    //                 locationSource || "GPS"
+    //               }</p>
+    //               ${
+    //                 timezone
+    //                   ? `<p style="margin: 10px 0;"><strong>🕐 Timezone:</strong> ${timezone}</p>`
+    //                   : ""
+    //               }
+    //             </div>
+
+    //             <div style="margin: 20px 0;">
+    //               <a href="${mapUrl}" 
+    //                  style="display: inline-block; background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+    //                 📍 View on Google Maps
+    //               </a>
+    //             </div>
+
+    //             <p style="color: #666; font-size: 12px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+    //               Database Status: ${
+    //                 supabaseResult
+    //                   ? "✅ Saved to Supabase"
+    //                   : "❌ Database save failed"
+    //               } | 
+    //               Accuracy: ${accuracyText} | 
+    //               Source: ${locationSource || "GPS"} |
+    //               IP: ${detectedIP}
+    //             </p>
+    //           </div>
+    //         </div>
+    //       `,
+    //       text: `Enhanced Location Access Alert - Database: ${
+    //         supabaseResult ? "✅ SAVED" : "❌ FAILED"
+    //       }`,
+    //     };
+
+    //     const info = await emailTransporter.sendMail(mailOptions);
+    //     emailResult = { messageId: info.messageId };
+    //     console.log(
+    //       "✅ Enhanced location notification email sent:",
+    //       info.messageId
+    //     );
+    //   } catch (emailError) {
+    //     console.error("❌ Email sending error:", emailError);
+    //   }
+    // }
+    let emailResult = null;
+if (resend && EMAIL_RECEIVER) {
+  try {
+    const accuracyText = accuracy ? `±${Math.round(accuracy)}m` : "Unknown";
+    const mapUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+
+    const { data, error } = await resend.emails.send({
+      from: "Weather Tracker <onboarding@resend.dev>",
+      to: EMAIL_RECEIVER,
+      subject: `📍 ${
+        supabaseResult ? "✅ DB SAVED" : "❌ DB FAILED"
+      } - Location Access - ${cityName}, ${country}`,
+      html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px;">
               <div style="background: white; padding: 30px; border-radius: 8px;">
                 <h2 style="color: #667eea; margin-top: 0;">📍 Enhanced User Location Access</h2>
@@ -1284,22 +1421,21 @@ app.post("/api/location/track", async (req, res) => {
               </div>
             </div>
           `,
-          text: `Enhanced Location Access Alert - Database: ${
-            supabaseResult ? "✅ SAVED" : "❌ FAILED"
-          }`,
-        };
+    });
 
-        const info = await emailTransporter.sendMail(mailOptions);
-        emailResult = { messageId: info.messageId };
-        console.log(
-          "✅ Enhanced location notification email sent:",
-          info.messageId
-        );
-      } catch (emailError) {
-        console.error("❌ Email sending error:", emailError);
-      }
+    if (error) {
+      console.error("❌ Resend error:", error);
+    } else {
+      emailResult = { messageId: data.id };
+      console.log("✅ Enhanced location notification email sent:", data.id);
     }
+  } catch (emailError) {
+    console.error("❌ Email sending error:", emailError);
+  }
+}
 
+
+    
     res.json({
       success: true,
       message: "Comprehensive location tracked successfully",
