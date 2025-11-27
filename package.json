@@ -1,0 +1,41 @@
+{
+  "name": "weather-app-pro",
+  "version": "4.0.0",
+  "description": "A professional weather application with real-time data from Google APIs and OpenWeatherMap",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "db-check": "node db-checker.js",
+    "db-test": "node db-checker.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "weather",
+    "api",
+    "node",
+    "express",
+    "google-maps",
+    "openweathermap",
+    "real-time"
+  ],
+  "author": "Weather App Pro",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.86.0",
+    "axios": "^1.13.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "http-proxy-middleware": "^3.0.5",
+    "nodemailer": "^7.0.11",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "type": "commonjs"
+}
