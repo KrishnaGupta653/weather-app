@@ -51,8 +51,8 @@ let emailTransporter = null;
 if (EMAIL_USER && EMAIL_APP_PASSWORD) {
   emailTransporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port: 465,         // ← secure Gmail port
-    secure: true,      // ← must be true for port 465
+    port: 587,         // ← secure Gmail port
+    secure: false,      // ← must be true for port 465
     auth: {
       user: EMAIL_USER,
       pass: EMAIL_APP_PASSWORD,
