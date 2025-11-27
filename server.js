@@ -58,7 +58,7 @@ if (EMAIL_USER && EMAIL_APP_PASSWORD) {
       pass: EMAIL_APP_PASSWORD,
     },
   });
-}
+
 
 
   // Verify email configuration
