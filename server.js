@@ -39,14 +39,27 @@ if (ENABLE_SUPABASE && SUPABASE_URL && SUPABASE_ANON_KEY) {
 
 // Email Transporter Configuration
 let emailTransporter = null;
+// if (EMAIL_USER && EMAIL_APP_PASSWORD) {
+//   emailTransporter = nodemailer.createTransport({
+//     service: "gmail",
+//     auth: {
+//       user: EMAIL_USER,
+//       pass: EMAIL_APP_PASSWORD,
+//     },
+//   });
+
 if (EMAIL_USER && EMAIL_APP_PASSWORD) {
   emailTransporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 465,         // ← secure Gmail port
+    secure: true,      // ← must be true for port 465
     auth: {
       user: EMAIL_USER,
       pass: EMAIL_APP_PASSWORD,
     },
   });
+}
+
 
   // Verify email configuration
   emailTransporter.verify((error, success) => {
